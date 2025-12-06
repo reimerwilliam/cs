@@ -88,3 +88,166 @@ For example:
 |  00101  |
 | ======= |
 |  01011  |
+
+Criterion: $A + (-A) = 0$
+
+REPRESENTATION(value + 1) = REPRESENTATION(value) + REPRESENTATION(1)
+
+To get the $-A$ from $A$: Flip all the bits of A, and add 1 to the complement of A. The sum of A and the complement of A is 11111. If we then add 00001 to 11111, the final result is 00000.
+
+The final carry can be safely ignored in 2's complement.
+
+## Conversion Between Binary and Decimal
+
+Converting between 2's complement and decimal data types.
+
+### Binary to decimal conversion
+
+Assume 8-bit representation.
+
+$b_7 b_6 b_5 b_4 b_3 b_2 b_1 b_0$
+
+1.  If the leading bit $b_7$ is a 0, the integer is positive. If it is a 1, the integer is negative. In that case we, we need to obtain the 2's complement representation of the positive number having the same magnitude. We do this by flipping all the bits and adding 1.
+
+2.  The magnitude is simply
+
+        $b_6*2^6+b_5*2^5+b_4*2^4+b_3*2^3+b_2*2^2+b_1*2^1+b_0*2^0$
+
+    In either case, we obtain the decimal magnitude by simply adding the powers of 2 that have coefficients of 1.
+
+3.  Finally, if the original number is negative, we affix a minus sign in front.
+
+### Decimal to Binary Conversion
+
+- Obtain the binary magnitude of |N| by repeated parity checks: if the current value is odd the least-significant bit is 1, otherwise 0; subtract that bit and divide the value by 2; repeat to produce bits b0..b6.
+- If N is non-negative, set the sign bit b7 = 0 and the 8-bit code is complete.
+- If N is negative, form the 8-bit pattern for |N| (with b7 = 0), then negate it to get the two's-complement result (invert all bits and add 1).
+
+Example: +105 -> magnitude bits produce `1101001` (b6..b0), prepend sign bit 0 => `01101001`.
+
+### Extending Conversion to Numbers with Fractional Parts
+
+This summary explains the methods for converting numbers that include a **fractional part** (i.e., digits to the right of the radix point) between binary and decimal.
+
+---
+
+#### ➡️ Binary to Decimal Conversion
+
+The process for converting a binary fraction to its decimal equivalent is **straightforward** and based on the positional value of each bit.
+
+- **Positional Value:** In a binary number like $0.b_{-1}b_{-2}b_{-3}b_{-4}$, the bits to the right of the binary point represent decreasing negative powers of 2.
+  - $b_{-1}$ has a value of $2^{-1} = 0.5$.
+  - $b_{-2}$ has a value of $2^{-2} = 0.25$.
+  - $b_{-3}$ has a value of $2^{-3} = 0.125$.
+  - $b_{-4}$ has a value of $2^{-4} = 0.0625$.
+- **Method:** To convert, simply **sum the positional values** for every bit that is a **1**.
+- **Example:** For the binary fraction **.1011**:
+  $$0.5 + 0 + 0.125 + 0.0625 = \mathbf{0.6875}$$
+
+---
+
+#### ⬅️ Decimal to Binary Conversion
+
+Converting a decimal fraction to binary is **more involved** and requires a repetitive multiplication process.
+
+##### The Multiplication Method
+
+To convert a decimal fraction, $D$, to its binary form, $0.b_{-1}b_{-2}b_{-3}...$, you repeatedly multiply the fractional part by **2** and take the resulting integer part as the next binary digit ($b_{-i}$).
+
+$$D = b_{-1} \times 2^{-1} + b_{-2} \times 2^{-2} + b_{-3} \times 2^{-3} + \dots$$
+
+1.  **Multiply by 2:** Multiply the decimal fraction by 2.
+2.  **Determine the Bit ($b_{-i}$):**
+    - If the result is **greater than or equal to 1**, the binary digit ($b_{-i}$) is **1**. Subtract 1 from the result, and use the new fractional part for the next step.
+    - If the result is **less than 1**, the binary digit ($b_{-i}$) is **0**. Use the fractional part for the next step.
+3.  **Repeat:** Continue this process until the fractional part is 0 or the desired number of bits is reached.
+
+##### Example: Converting 0.421 to Binary
+
+| Step | Operation        | Result  | Integer Part ($b_{-i}$) | New Fraction |
+| :--- | :--------------- | :------ | :---------------------- | :----------- |
+| 1    | $0.421 \times 2$ | $0.842$ | $\mathbf{0}$ ($b_{-1}$) | $0.842$      |
+| 2    | $0.842 \times 2$ | $1.684$ | $\mathbf{1}$ ($b_{-2}$) | $0.684$      |
+| 3    | $0.684 \times 2$ | $1.368$ | $\mathbf{1}$ ($b_{-3}$) | $0.368$      |
+| 4    | $0.368 \times 2$ | $0.736$ | $\mathbf{0}$ ($b_{-4}$) | $0.736$      |
+
+- **Result (4 bits):** $0.421_{10} \approx \mathbf{0.0110}_2$.
+
+This process may continue **indefinitely** as not all decimal fractions have an exact, finite binary representation.
+
+## Operations on Bits - Part 1: Arithmetic
+
+Addition still proceeds from right to left, one digit at a time. Subtraction is addition preceded by determining the negative of the number to be subtracted.
+
+### Sign-Extension
+
+In the same way that leading 0s don't affect the value of a positive number, leading 1s do not affect the value of a negative number.
+
+In order to add representations of different lengths, it's first necessary to represent them with the same number of bits.
+
+### Overflow
+
+What happens if the sum of two numbers can't be represented by the available bits?
+
+The operation overflows and the result is incorrect.
+
+## Operations on Bits - Part 2: Logical Operations
+
+### Logical Variable
+
+Logical operations operate on logical variables. It can have one of two values, 1 or 2.
+The name comes from the fact that the two values 0 and 1 can represent the two logical values false and true.
+
+### The AND Function
+
+AND is a binary logical function. It requires two input data (source operands), each being a logical variable.
+
+| A   | B   | AND |
+| :-- | :-- | :-- |
+| 0   | 0   | 0   |
+| 0   | 1   | 0   |
+| 1   | 0   | 0   |
+| 1   | 1   | 1   |
+
+We can apply the operation to two bit patterns of $m$ bits each. This involves applying the operation individually and independently to each pair of bits in the two source operands. That is called a _bit-wise AND_.
+
+### The OR Function
+
+| A   | B   | OR  |
+| :-- | :-- | :-- |
+| 0   | 0   | 0   |
+| 0   | 1   | 1   |
+| 1   | 0   | 1   |
+| 1   | 1   | 1   |
+
+### The NOT Function
+
+NOT is a _unary_ logical function. That means it operates on only one source operand. It is also known as the _complement_ operation.
+
+| A   | NOT |
+| :-- | :-- |
+| 0   | 1   |
+| 1   | 0   |
+
+### The Exclusive-OR Function
+
+XOR is a binary logical function. The output is 1 if one of the source operands is 1 but not both.
+
+| A   | B   | XOR |
+| :-- | :-- | :-- |
+| 0   | 0   | 0   |
+| 0   | 1   | 1   |
+| 1   | 0   | 1   |
+| 1   | 1   | 0   |
+
+### DeMorgan's Laws
+
+![alt text](image.png)
+
+DeMorgans First Law:
+
+_"It is not the case that both A and B are false" is equivalent to saying "At least one of A and B is true"_
+
+### The Bit Vector
+
+An m-bit pattern where each bit has a logical value (0 or 1) independent of the other bits is called a _bit vector_.
